@@ -1,1 +1,1 @@
-This repository is the front-end react implementation of a todo list website using the MERN stack.
+This is a full MERN stack movie list.

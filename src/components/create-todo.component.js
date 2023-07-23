@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import axios from 'axios';
+import {Link} from "react-router-dom";
 
 export default class CreateTodo extends Component {
 
@@ -8,18 +9,29 @@ export default class CreateTodo extends Component {
 
         this.onChangeTodoDescription = this.onChangeTodoDescription.bind(this);
         this.onChangeTodoResponsible = this.onChangeTodoResponsible.bind(this);
+        this.onChangeSearchTitle = this.onChangeSearchTitle.bind(this);
         this.onChangeTodoPriority = this.onChangeTodoPriority.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
+        this.fetchData = this.fetchData.bind(this);
+        this.addMovie = this.addMovie.bind(this);
 
         this.state = {
             todo_description: '',
             todo_responsible: '',
             todo_priority: '',
-            todo_completed: false
+            todo_completed: false,
+            title: '',
+            movies:[]
         }
     }
 
     onChangeTodoDescription(e) {
+        this.setState({
+            todo_description: e.target.value
+        });
+    }
+
+    onChangeSearchTitle(e) {
         this.setState({
             todo_description: e.target.value
         });
@@ -64,66 +76,86 @@ export default class CreateTodo extends Component {
         })
     }
 
+    async fetchData(e) {
+        e.preventDefault();
+
+        const title = this.state.title;
+
+        const response = await axios.get("https://api.themoviedb.org/3/search/movie?api_key=30e5cc4bad6f7de3f9215805730d8a4f&language=en-US&query="+title+"&page=1&include_adult=false"
+                                        );
+        
+        console.log(response.data.results);
+
+        this.setState({movies: response.data.results})
+    }
+
+    async addMovie(e) {
+        e.preventDefault();
+
+        const id = e.target.value;
+        console.log(id);
+
+        const response = await axios.get(
+            "https://api.themoviedb.org/3/movie/"+id+"?api_key=30e5cc4bad6f7de3f9215805730d8a4f&language=en-US"
+        );
+        const movie = response.data;
+        var ID = movie.id;
+        movie._id = ID;
+        delete movie.id;
+        console.log(movie);
+        axios.post('http://localhost:4000/todos/add', movie)
+           .then(res => console.log(res.data));
+    }
+
     render() {
         return (
-            <div style={{marginTop: 20}}>
-                <h3>Create New Todo</h3>
+            <div style={{marginTop: 10}}>
+                <h3>Add Movie</h3>
                 <form onSubmit={this.onSubmit}>
-                    <div className="form-group">
-                        <label>Description: </label>
+                   <div className="form-group">
+                        <label>Title: </label>
                         <input  type="text"
                                 className="form-control"
-                                value={this.state.todo_description}
-                                onChange={this.onChangeTodoDescription}
-                                />
-                    </div>
-                    <div className="form-group">
-                        <label>Responsible: </label>
-                        <input  type="text"
-                                className="form-control"
-                                value={this.state.todo_responsible}
-                                onChange={this.onChangeTodoResponsible}
-                                />
-                    </div>
-                    <div className="form-group">
-                        <div className="form-check form-check-inline">
-                            <input  className="form-check-input"
-                                    type="radio"
-                                    name="priorityOptions"
-                                    id="priorityLow"
-                                    value="Low"
-                                    checked={this.state.todo_priority==='Low'}
-                                    onChange={this.onChangeTodoPriority}
-                                    />
-                            <label className="form-check-label">Low</label>
-                        </div>
-                        <div className="form-check form-check-inline">
-                            <input  className="form-check-input"
-                                    type="radio"
-                                    name="priorityOptions"
-                                    id="priorityMedium"
-                                    value="Medium"
-                                    checked={this.state.todo_priority==='Medium'}
-                                    onChange={this.onChangeTodoPriority}
-                                    />
-                            <label className="form-check-label">Medium</label>
-                        </div>
-                        <div className="form-check form-check-inline">
-                            <input  className="form-check-input"
-                                    type="radio"
-                                    name="priorityOptions"
-                                    id="priorityHigh"
-                                    value="High"
-                                    checked={this.state.todo_priority==='High'}
-                                    onChange={this.onChangeTodoPriority}
-                                    />
-                            <label className="form-check-label">High</label>
-                        </div>
-                    </div>
-                    <div className="form-group">
-                        <input type="submit" value="Create Todo" className="btn btn-primary" />
+                                value={this.state.title}
+                                onChange={this.onChangeSearchTitle}
+                        />
+                    <button className="fetch-button" onClick={this.fetchData}>
+                        Search
+                    </button>
                     </div>
                 </form>
+                <div className="results">
+                    <table className="table table-striped" style={{ marginTop: 20 }} >
+                        <thead>
+                        <tr>
+                            <th>Poster</th>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {this.state.movies &&
+                        this.state.movies.map((movie, index) => {
+                            return (
+                                <tr>
+                                    <td><img src={"https://image.tmdb.org/t/p/w300"+movie.poster_path}/></td>
+                                    <td>{movie.title}</td>
+                                    <td>{movie.overview}</td>
+                                    <td>
+                                        <button className="fetch-button" value={movie.id} onClick={this.addMovie}>
+                                           Add
+                                        </button>
+
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                        </tbody>
+                    </table>
+
+
+                </div>
             </div>
         )
     }

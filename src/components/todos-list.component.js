@@ -2,13 +2,14 @@ import React, {Component} from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 
-const Todo = props => (
+const Movie = props => (
     <tr>
-        <td className={props.todo.todo_completed ? 'completed' : ''}>{props.todo.todo_description}</td>
-        <td className={props.todo.todo_completed ? 'completed' : ''}>{props.todo.todo_responsible}</td>
-        <td className={props.todo.todo_completed ? 'completed' : ''}>{props.todo.todo_priority}</td>
+        <td><img src={"https://image.tmdb.org/t/p/w300"+props.movie.poster_path}/></td>
+        <td>{props.movie.title}</td>
+        <td>{props.movie.overview}</td>
         <td>
-            <Link to={"/edit/"+props.todo._id}>Edit</Link>
+            <Link to={"/view/"+props.movie._id}>View</Link>
+            <Link to={"/delete/"+props.movie._id}>View</Link>
         </td>
     </tr>
 )
@@ -21,8 +22,9 @@ export default class TodosList extends Component {
     }
 
     componentDidMount() {
-        axios.get('http://localhost:4000/todos')
+        axios.get('http://localhost:4000/todos/')
             .then(response => {
+                console.log(response.data);
                 this.setState({todos: response.data});
             })
             .catch(function (error) {
@@ -32,14 +34,14 @@ export default class TodosList extends Component {
 
     todoList() {
         return this.state.todos.map(function(currentTodo, i) {
-            return <Todo todo={currentTodo} key={i} />;
+            return <Movie movie={currentTodo} key={i} />;
         });
     }
 
     render() {
         return (
             <div>
-                <h3>Todos List</h3>
+                <h3>Movie List</h3>
                 <table className="table table-striped" style={{ marginTop: 20 }}>
                     <thead>
                         <tr>
