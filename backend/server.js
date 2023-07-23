@@ -7,7 +7,6 @@ const todoRoutes = express.Router();
 const PORT = 4000;
 
 let Movie = require('./movie.model');
-const { findByIdAndRemove } = require('./movie.model');
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -40,15 +39,12 @@ todoRoutes.route('/:id').get(async (req, res) => {
     }
 });
 
-todoRoutes.route('/delete/:id').get(async (req, res) => {
+todoRoutes.route('/delete/:id').post(async (req, res) => {
     try {
-        findByIdAndRemove(req.params.id)
-        .then(result => {
-            res.status(200).json({
-                message: 'Address Deleted',
-                result
-            });
-        });
+        const { id } = req.params;
+        const deletedMovie = await Movie.findByIdAndDelete(id);
+        res.status(200).json({message: "Movie deleted"});
+        console.log("movie removed!!!!!!");
     } catch(err) {
         console.log(err);
         res.status(500).send("Internal Server Error");

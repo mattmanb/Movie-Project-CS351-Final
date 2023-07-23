@@ -2,14 +2,13 @@ import React, {Component} from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 
-const Movie = props => (
+const Movie = (props) => (
     <tr>
         <td><img src={"https://image.tmdb.org/t/p/w300"+props.movie.poster_path}/></td>
         <td>{props.movie.title}</td>
         <td>{props.movie.overview}</td>
         <td>
             <Link to={"/view/"+props.movie._id}>View</Link>
-            <Link to={"/delete/"+props.movie._id}>View</Link>
         </td>
     </tr>
 )
@@ -45,9 +44,9 @@ export default class TodosList extends Component {
                 <table className="table table-striped" style={{ marginTop: 20 }}>
                     <thead>
                         <tr>
+                            <th>Poster</th>
+                            <th>Title</th>
                             <th>Description</th>
-                            <th>Responsible</th>
-                            <th>Priority</th>
                             <th>Actions</th>
                         </tr>
                     </thead>

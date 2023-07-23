@@ -1,43 +1,40 @@
-import React, { Component } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 import axios from 'axios';
+import { useParams } from 'react-router-dom';
 
-export default class EditTodo extends Component {
+const ViewTodo = (props) => {
+    const { id } = useParams();
 
-    constructor(props) {
-        super(props);
-        this.onDelete = this.onDelete.bind(this);
+    const [movie, setMovie] = useState({});
 
-        this.state = {
-
-            movie:''
-        }
-    }
-
-    componentDidMount() {
-        axios.get('http://localhost:4000/todos/'+this.props.match.params.id)
+    useEffect(() => {
+        axios.get(`http://localhost:4000/todos/${id}`)
             .then(response => {
                 console.log(response.data);
-                this.setState({movie:response.data
-                })
+                setMovie(response.data);
             })
             .catch(function (error) {
                 console.log(error);
-            })
-    }
-    onDelete(e){
-        axios.post('http://localhost:4000/todos/delete/'+this.props.match.params.id)
-            .then(res => console.log(res.data));
-        this.props.history.push('/');
+            });
+    }, [id]);
+
+    const onDelete = async (e) => {
+        axios.post(`http://localhost:4000/todos/delete/${id}`)
+            .then(res =>  {
+                console.log(res.data);
+                window.location = '/';
+            }).catch(err => console.log(err));
     }
 
-
-    render() {
-        return (
-            <div>
-                <h3 align="center">{this.state.movie.title}</h3>
-               Modify me to display the movie info poster etc.
-                <input type="Button" value="Delete" onClick={this.onDelete} className="btn btn-primary"/>
-            </div>
-        )
-    }
+    return (
+        <div align="center">
+            <h3>{movie.title}</h3>
+            <img src={"https://image.tmdb.org/t/p/w300"+movie.poster_path} alt={movie.title+"Poster"}/>
+            <h4 class="movieInfo">Overview</h4>{movie.overview}
+            <br/><br/>
+            <input type="Button" value="Delete" onClick={onDelete} className="btn btn-primary"/>
+        </div>
+    )
 }
+
+export default ViewTodo;

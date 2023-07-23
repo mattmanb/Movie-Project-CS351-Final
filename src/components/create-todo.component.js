@@ -33,7 +33,7 @@ export default class CreateTodo extends Component {
 
     onChangeSearchTitle(e) {
         this.setState({
-            todo_description: e.target.value
+            title: e.target.value
         });
     }
 

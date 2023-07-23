@@ -5,28 +5,31 @@ import { useParams } from 'react-router-dom';
 const EditTodo = () => {
     const { id } = useParams();
 
-    const [todo, setTodo] = useState({
-        todo_description: '',
-        todo_responsible: '',
-        todo_priority: '',
-        todo_completed: false
+    const [movie, setMovie] = useState({
+        movie: ''
     });
 
     useEffect(() => {
         axios.get(`http://localhost:4000/todos/${id}`)
             .then(response => {
-                const { todo_description, todo_responsible, todo_priority, todo_completed } = response.data;
-                setTodo({
-                    todo_description,
-                    todo_responsible,
-                    todo_priority,
-                    todo_completed
+                const { movie } = response.data;
+                setMovie({
+                    movie
                 });
             })
             .catch(function (error) {
                 console.log(error);
             });
     }, [id]);
+
+    const onDelete = (e) => {
+        axios.post(`http://localhost:4000/todos/delete/${id}`)
+            .then(res =>  {
+                console.log(res.data);
+                window.location = '/';
+            });
+    }
+    
 
     const onChangeTodoDescription = (e) => {
         setTodo({
