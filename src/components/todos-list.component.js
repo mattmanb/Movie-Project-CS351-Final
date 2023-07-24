@@ -17,7 +17,8 @@ export default class TodosList extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {todos: []};
+        this.state = {todos: [],
+                    movies: []};
     }
 
     componentDidMount() {
@@ -37,9 +38,31 @@ export default class TodosList extends Component {
         });
     }
 
+    async hitMovieList() {
+        const response = axios.get(
+            "https://api.themoviedb.org/3/movie/popular?api_key=30e5cc4bad6f7de3f9215805730d8a4f&language=en-US&page=1"
+        );
+        console.log(response.data);
+        this.setState({movies: response.data.results});
+    }
+
     render() {
         return (
             <div>
+                <h3>Trending Movies</h3>
+                <table className="table table-striped" style={{ marginTop: 20 }}>
+                    <thead>
+                        <tr>
+                            <th>Poster</th>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        { this.hitMovieList() }
+                    </tbody>
+                </table>
                 <h3>Movie List</h3>
                 <table className="table table-striped" style={{ marginTop: 20 }}>
                     <thead>
