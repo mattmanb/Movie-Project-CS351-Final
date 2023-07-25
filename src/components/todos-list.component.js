@@ -4,7 +4,7 @@ import axios from 'axios';
 
 const Movie = (props) => (
     <tr>
-        <td><img src={"https://image.tmdb.org/t/p/w300"+props.movie.poster_path}/></td>
+        <td><img src={"https://image.tmdb.org/t/p/w300"+props.movie.poster_path} alt="movie poster"/></td>
         <td>{props.movie.title}</td>
         <td>{props.movie.overview}</td>
         <td>
@@ -19,6 +19,7 @@ export default class TodosList extends Component {
         super(props);
         this.state = {todos: [],
                     movies: []};
+        this.hitMovieList();
     }
 
     componentDidMount() {
@@ -45,38 +46,70 @@ export default class TodosList extends Component {
         console.log(response.data);
         this.setState({movies: response.data.results});
     }
+    async addMovie(e){
+        e.preventDefault();
+        const id = e.target.value;
+        console.log(id);
+        const response = await axios.get(
+            "https://api.themoviedb.org/3/movie/"+id+"?api_key=30e5cc4bad6f7de3f9215805730d8a4f&language=en-US"
+        );
+        const movie = response.data;
+        var ID = movie.id;
+        movie._id = ID;
+        delete movie.id;
+
+        console.log(movie);
+        axios.post('http://localhost:4000/todos/add', movie)
+            .then(res => console.log(res.data));
+    }
 
     render() {
         return (
             <div>
-                <h3>Trending Movies</h3>
-                <table className="table table-striped" style={{ marginTop: 20 }}>
-                    <thead>
+                <div>
+                    <h3>Top Movie List</h3>
+                    <table className="table table-striped" style={{ marginTop: 20 }} >
+                        <thead>
                         <tr>
-                            <th>Poster</th>
-                            <th>Title</th>
-                            <th>Description</th>
-                            <th>Actions</th>
+
                         </tr>
-                    </thead>
-                    <tbody>
-                        { this.hitMovieList() }
-                    </tbody>
-                </table>
-                <h3>Movie List</h3>
-                <table className="table table-striped" style={{ marginTop: 20 }}>
-                    <thead>
-                        <tr>
-                            <th>Poster</th>
-                            <th>Title</th>
-                            <th>Description</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        { this.todoList() }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                        {this.state.movies &&
+                        this.state.movies.map((movie, index) => {
+                            return (
+                                <tr>
+                                    <td><img src={"https://image.tmdb.org/t/p/w300"+movie.poster_path} alt="movie poster"/></td>
+                                    <td>{movie.title}</td>
+                                    <td>{movie.overview}</td>
+                                    <td>
+                                        <button className="fetch-button" value={movie.id} onClick={this.addMovie}>
+                                            Add
+                                        </button>
+
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                        </tbody>
+                    </table>
+                </div>
+                <div>
+                    <h3>Movie List</h3>
+                    <table className="table table-striped" style={{ marginTop: 20 }}>
+                        <thead>
+                            <tr>
+                                <th>Poster</th>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            { this.todoList() }
+                        </tbody>
+                    </table>
+                </div>
             </div>
         )
     }
